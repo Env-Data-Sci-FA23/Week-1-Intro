@@ -63,8 +63,10 @@ Write a chain of operations that does the following:
 
 ```{r}
 kenya_data_selected <- kenya_data %>%
-  select(-c(Min_Temp_585_30, Min_Temp_585_50, Min_Temp_585_70, Min_Temp_585_90, Min_Temp_hist, Max_Temp_585_30, Max_Temp_585_50, Max_Temp_585_70, Max_Temp_585_90, Max_Temp_hist, Precipitation_hist)) %>%
-  filter(Precipitation_585_90 > mean(c(Precipitation_585_30, Precipitation_585_50, Precipitation_585_70, Precipitation_585_90), na.rm = FALSE)) %>%
+  select("County", matches("precipitation")) %>%
+  filter(Precipitation_585_90 > mean(Precipitation_585_90, na.rm = FALSE))
+
+kenya_data_longer <- kenya_data_selected %>%
   pivot_longer(!County, names_to = "Variable", values_to = "Precip")
 ```
 
@@ -73,9 +75,15 @@ Question: How many counties have predicted precip values greater than the total 
 Using the new dataset created above, create a bar plot of precipitation for each time frame for each county using `facet_wrap()`
 
 ```{r}
-ggplot(data = kenya_data_selected) + 
-  geom_bar(aes(x = "Variable")) +
-  facet_wrap(~ County)
+greatest_precip_kenya <-unique(kenya_data_longer$County)
+view(greatest_precip_kenya)
+```
+
+```{r}
+ggplot(data = kenya_data_longer) + 
+  #use geom_col which conveys values that you want it to convey, instead of just a count with geom_bar
+  geom_col(mapping = aes(x = Variable, y = Precip), alpha = 0.8) + 
+  facet_wrap(~County)
 ```
 
 CHALLENGE:
@@ -85,5 +93,9 @@ This is messy though since we have so many counties. Instead, use `map()` to cre
 There are many ways to do this!
 
 ```{r}
-map()
+counties <- unique(kenya_data_longer$County)
+
+plots <-
+  map(counties,
+      ~ kenya_data_longer %>% filter(County == .x) %>% ggplot(aes(x = name, y = value)) + geom_col())
 ```

@@ -38,12 +38,13 @@ Load in the tidyverse (only package(s) needed for this exercise:
 
 ```{r}
 library(tidyverse)
+library(dplyr)
 ```
 
 Read in the 'kenya_county_climates.csv' in the 'data/' folder and assign it to an environmental variable (Hint: use 'read_csv()').
 
 ```{r}
-
+kenya_county_climates <- read.csv("/Users/melissamorales/Desktop/Week-1-Intro/data/kenya_county_climates.csv")
 ```
 
 Write a chain of operations that does the following:
@@ -55,15 +56,27 @@ Write a chain of operations that does the following:
 3.  `pivot_longer()` all the precipitation columns (so everything *except* 'County'), so we have one column for all precip values and one column with the value's associated variables.
 
 ```{r}
+# select for County and Precipitation
 
+select(kenya_county_climates, contains("Precipitation"), "County") %>%
+filter(Precipitation_585_90> mean(Precipitation_hist)) %>%
+pivot_longer(cols = (-County))
+
+df$new_col
+new_col %>%
+  n_distinct("County")
 ```
 
 Question: How many counties have predicted precip values greater than the total average for all counties?
+28
 
 Using the new dataset created above, create a bar plot of precipitation for each time frame for each county using `facet_wrap()`
 
 ```{r}
-
+df %>%
+ggplot(mapping = aes(x=name, y=value)) + 
+  geom_col() + 
+  facet_wrap(~County)
 ```
 
 CHALLENGE:
@@ -73,5 +86,21 @@ This is messy though since we have so many counties. Instead, use `map()` to cre
 There are many ways to do this!
 
 ```{r}
+library(purrr)
+```
+
+```{r}
+# Mean precip
+county_means <- kenya_county_climates %>%
+  group_by(County) %>%
+  summarize(mean_precipitation = mean(Precipitation_hist))
+
+# Bar plot
+ggplot(county_means, aes(x = County, y = mean_precipitation)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(title = "Mean Precipitation by County",
+       x = "County",
+       y = "Mean Precipitation") +
+  theme_minimal()
 
 ```

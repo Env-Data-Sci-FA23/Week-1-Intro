@@ -43,7 +43,7 @@ library(tidyverse)
 Read in the 'kenya_county_climates.csv' in the 'data/' folder and assign it to an environmental variable (Hint: use 'read_csv()').
 
 ```{r}
-
+KenyaCountyClimates <- read_csv("data/kenya_county_climates.csv", col_names = TRUE)
 ```
 
 Write a chain of operations that does the following:
@@ -55,7 +55,10 @@ Write a chain of operations that does the following:
 3.  `pivot_longer()` all the precipitation columns (so everything *except* 'County'), so we have one column for all precip values and one column with the value's associated variables.
 
 ```{r}
-
+Precip_filtered <- KenyaCountyClimates%>% 
+  select(County, contains("Precipitation")) %>% 
+  filter(Precipitation_585_90 > mean(Precipitation_585_90)) %>% 
+  pivot_longer(cols = -County)
 ```
 
 Question: How many counties have predicted precip values greater than the total average for all counties?
@@ -63,7 +66,12 @@ Question: How many counties have predicted precip values greater than the total 
 Using the new dataset created above, create a bar plot of precipitation for each time frame for each county using `facet_wrap()`
 
 ```{r}
-
+Precip_filtered %>% 
+  ggplot(aes(x = name, y = value)) +
+  geom_col() +
+  # fix the labels
+  theme(axis.text.x = element_text(angle = 90)) +
+  facet_wrap(~County)
 ```
 
 CHALLENGE:

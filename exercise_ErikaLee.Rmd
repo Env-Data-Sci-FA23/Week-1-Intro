@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
 ## Assignment Instructions:
@@ -32,6 +32,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## The coding exercise:
 
+```{r}
+source("setup.R")
+```
+
 Work through the steps below to complete this exercise (to the best of your ability) and then save, add, commit and push this file with your coding edits to your forked repo and follow the instructions above for completing the assignment via creating and reviewing a pull request.
 
 Load in the tidyverse (only package(s) needed for this exercise:
@@ -43,7 +47,10 @@ library(tidyverse)
 Read in the 'kenya_county_climates.csv' in the 'data/' folder and assign it to an environmental variable (Hint: use 'read_csv()').
 
 ```{r}
+install.packages('readr')
+library(readr)
 
+kenya_data <- read_csv('data/kenya_county_climates.csv')
 ```
 
 Write a chain of operations that does the following:
@@ -55,7 +62,10 @@ Write a chain of operations that does the following:
 3.  `pivot_longer()` all the precipitation columns (so everything *except* 'County'), so we have one column for all precip values and one column with the value's associated variables.
 
 ```{r}
-
+kenya_data_selected <- kenya_data %>%
+  select(-c(Min_Temp_585_30, Min_Temp_585_50, Min_Temp_585_70, Min_Temp_585_90, Min_Temp_hist, Max_Temp_585_30, Max_Temp_585_50, Max_Temp_585_70, Max_Temp_585_90, Max_Temp_hist, Precipitation_hist)) %>%
+  filter(Precipitation_585_90 > mean(c(Precipitation_585_30, Precipitation_585_50, Precipitation_585_70, Precipitation_585_90), na.rm = FALSE)) %>%
+  pivot_longer(!County, names_to = "Variable", values_to = "Precip")
 ```
 
 Question: How many counties have predicted precip values greater than the total average for all counties?
@@ -63,7 +73,9 @@ Question: How many counties have predicted precip values greater than the total 
 Using the new dataset created above, create a bar plot of precipitation for each time frame for each county using `facet_wrap()`
 
 ```{r}
-
+ggplot(data = kenya_data_selected) + 
+  geom_bar(aes(x = "Variable")) +
+  facet_wrap(~ County)
 ```
 
 CHALLENGE:
@@ -73,5 +85,5 @@ This is messy though since we have so many counties. Instead, use `map()` to cre
 There are many ways to do this!
 
 ```{r}
-
+map()
 ```

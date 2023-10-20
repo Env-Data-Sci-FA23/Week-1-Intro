@@ -55,7 +55,7 @@ Write a chain of operations that does the following:
 3.  `pivot_longer()` all the precipitation columns (so everything *except* 'County'), so we have one column for all precip values and one column with the value's associated variables.
 
 ```{r}
-meanprecip= mean(kenya_climate)
+meanprecipitation= mean(kenya_climate)
   
 ```
 
